@@ -1,0 +1,11 @@
+{
+  "name": "NodeJS",
+  "version": "1.0.0",
+  "description": "It is a simple node js application with package.json.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "author": "Abhi Patel",
+  "license": "ISC"
+}
