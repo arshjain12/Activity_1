@@ -1,30 +1,40 @@
-name: Deploy Python Script
+name: Deploy Node.js App (No Secrets)
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:  # optional: manual trigger
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
 
-    - name: Copy files to server
-      run: |
-        scp app.py ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/app.py
+    - name: Install Dependencies
+      run: npm install
 
-    - name: Run Python script remotely
-      run: |
-        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "python3 /home/${{ secrets.REMOTE_USER }}/app.py"
+    - name: Run Tests
+      run: npm test
+
+    - name: Deploy via SSH (Not Secure)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: your.server.ip.address
+        username: your_ssh_username
+        key: |
+          -----BEGIN OPENSSH PRIVATE KEY-----
+          your-private-key-content-here
+          -----END OPENSSH PRIVATE KEY-----
+        port: 22
+        script: |
+          cd /var
+
